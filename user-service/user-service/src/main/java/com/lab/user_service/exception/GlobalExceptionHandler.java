@@ -2,6 +2,7 @@ package com.lab.user_service.exception;
 
 import com.lab.user_service.dto.response.ErrorResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -72,6 +74,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDto> handleGenericException(
             Exception ex, HttpServletRequest request) {
+        log.error("Unexpected error processing request {}: {}", request.getRequestURI(), ex.getMessage(), ex);
         ErrorResponseDto error = ErrorResponseDto.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .message("An unexpected error occurred")

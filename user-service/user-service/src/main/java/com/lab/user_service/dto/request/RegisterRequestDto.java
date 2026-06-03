@@ -10,11 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserRequestDto {
-
-    @NotBlank(message = "Name is mandatory")
-    @Size(min = 3, max = 150, message = "Name must be between 3 and 150 characters")
-    private String name;
+public class RegisterRequestDto {
 
     @NotBlank(message = "Email is mandatory")
     @Email(message = "Email must be valid")
@@ -24,6 +20,15 @@ public class UserRequestDto {
     @Size(min = 6, max = 200, message = "Password must be between 6 and 200 characters")
     private String password;
 
+    @NotBlank(message = "Name is mandatory")
+    @Size(min = 3, max = 150, message = "Name must be between 3 and 150 characters")
+    private String name;
+
+    @NotBlank(message = "Phone is mandatory")
     @Size(max = 20, message = "Phone must have at most 20 characters")
     private String phone;
+
+    @NotBlank(message = "Delivery address is mandatory")
+    @Size(max = 300, message = "Delivery address must have at most 300 characters")
+    private String deliveryAddress;
 }
