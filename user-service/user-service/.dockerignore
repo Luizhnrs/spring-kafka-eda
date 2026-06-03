@@ -1,0 +1,15 @@
+target/
+*.jar
+*.war
+*.log
+.mvn/
+mvnw
+mvnw.cmd
+HELP.md
+.git
+.gitignore
+.gitattributes
+.vscode/
+.idea/
+*.iml
+node_modules/
