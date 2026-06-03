@@ -1,5 +1,6 @@
 package com.lab.user_service.dto.response;
 
+import com.lab.user_service.entity.Role;
 import lombok.*;
 
 @Getter
@@ -14,6 +15,7 @@ public class LoginResponseDto {
     private Long id;
     private String name;
     private String email;
+    private Role role;
 
     public static LoginResponseDto of(String token, UserResponseDto user) {
         return LoginResponseDto.builder()
@@ -22,6 +24,7 @@ public class LoginResponseDto {
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
+                .role(user.getRole())
                 .build();
     }
 }

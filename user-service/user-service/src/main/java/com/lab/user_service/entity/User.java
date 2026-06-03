@@ -32,6 +32,11 @@ public class User {
     @Column(name = "delivery_address", length = 300)
     private String deliveryAddress;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private Role role = Role.BUYER;
+
     @Column(name = "is_active", nullable = false)
     @Builder.Default
     private Boolean isActive = true;

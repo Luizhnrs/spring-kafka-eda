@@ -34,6 +34,7 @@ public class UserService {
                 .name(requestDto.getName())
                 .phone(requestDto.getPhone())
                 .deliveryAddress(requestDto.getDeliveryAddress())
+                .role(requestDto.getRole())
                 .isActive(true)
                 .build();
 
@@ -57,6 +58,7 @@ public class UserService {
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .deliveryAddress(user.getDeliveryAddress())
+                .role(user.getRole())
                 .isActive(user.getIsActive())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
