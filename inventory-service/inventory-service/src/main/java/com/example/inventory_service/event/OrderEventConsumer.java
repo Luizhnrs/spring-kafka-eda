@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class OrderEventConsumer {
 
     private final ProductService productService;
+    private final ProductEventPublisher eventPublisher;
 
     @KafkaListener(topics = "order-events", groupId = "inventory-service-group")
     public void handleOrderCreated(OrderCreatedEvent event) {
@@ -20,14 +21,21 @@ public class OrderEventConsumer {
         if ("CREATED".equals(event.status())) {
             try {
                 productService.reserveStock(event);
-                log.info("✅ Stock reserved successfully for orderId: {}", event.orderId());
+                eventPublisher.publishOrderStatusChanged(new OrderStatusChangedEvent(
+                        event.orderId(),
+                        "PAYMENT_PENDING",
+                        "Stock reserved successfully"));
+                log.info("Stock reserved successfully for orderId: {}", event.orderId());
             } catch (Exception e) {
-                log.error("❌ Failed to reserve stock for orderId: {}: {}", event.orderId(), e.getMessage(), e);
-                // Saga pattern: publicar evento de compensação aqui
+                log.error("Failed to reserve stock for orderId: {}: {}", event.orderId(), e.getMessage(), e);
+                eventPublisher.publishOrderStatusChanged(new OrderStatusChangedEvent(
+                        event.orderId(),
+                        "CANCELLED",
+                        e.getMessage()));
             }
         } else if ("CANCELLED".equals(event.status()) || "PAYMENT_FAILED".equals(event.status())) {
             productService.restoreStock(event);
-            log.info("🔄 Stock restored for orderId: {}", event.orderId());
+            log.info("Stock restored for orderId: {}", event.orderId());
         }
     }
 }
