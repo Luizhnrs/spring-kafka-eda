@@ -1,5 +1,7 @@
 package com.example.inventory_service.service;
 
+import com.example.inventory_service.event.OrderCreatedEvent;
+import com.example.inventory_service.event.OrderItemEvent;
 import com.example.inventory_service.event.ProductCreatedEvent;
 import com.example.inventory_service.dto.request.ProductRequest;
 import com.example.inventory_service.dto.response.ProductResponse;
@@ -63,6 +65,38 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", "id", id));
         return toResponse(product);
+    }
+
+    @Transactional
+    public void reserveStock(OrderCreatedEvent event) {
+        for (OrderItemEvent item : event.items()) {
+            Product product = productRepository.findById(item.productId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product", "id", item.productId()));
+
+            if (product.getStock() < item.quantity()) {
+                throw new IllegalStateException(
+                        "Insufficient stock for product " + product.getName() +
+                        ". Available: " + product.getStock() + ", requested: " + item.quantity());
+            }
+
+            product.setStock(product.getStock() - item.quantity());
+            productRepository.save(product);
+            log.info("Reserved {} units of product {} (remaining stock: {})",
+                    item.quantity(), product.getName(), product.getStock());
+        }
+    }
+
+    @Transactional
+    public void restoreStock(OrderCreatedEvent event) {
+        for (OrderItemEvent item : event.items()) {
+            Product product = productRepository.findById(item.productId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Product", "id", item.productId()));
+
+            product.setStock(product.getStock() + item.quantity());
+            productRepository.save(product);
+            log.info("Restored {} units of product {} (stock now: {})",
+                    item.quantity(), product.getName(), product.getStock());
+        }
     }
 
     private ProductResponse toResponse(Product product) {
