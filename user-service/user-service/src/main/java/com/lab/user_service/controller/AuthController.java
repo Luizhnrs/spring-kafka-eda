@@ -30,8 +30,12 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         String email = authentication.getName();
-        String token = jwtUtils.generateToken(email, authentication.getAuthorities().stream().findFirst().orElse(null) != null ? authentication.getAuthorities().stream().findFirst().get().getAuthority().replace("ROLE_", "") : "BUYER");
         UserResponseDto user = userService.findByEmail(email);
+        String role = authentication.getAuthorities().stream()
+                .findFirst()
+                .map(a -> a.getAuthority().replace("ROLE_", ""))
+                .orElse("BUYER");
+        String token = jwtUtils.generateToken(email, role, user.getId());
 
         return ResponseEntity.ok(LoginResponseDto.of(token, user));
     }
@@ -39,7 +43,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<LoginResponseDto> register(@Valid @RequestBody RegisterRequestDto request) {
         UserResponseDto user = userService.register(request);
-        String token = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
+        String token = jwtUtils.generateToken(user.getEmail(), user.getRole().name(), user.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(LoginResponseDto.of(token, user));
